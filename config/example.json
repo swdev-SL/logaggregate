@@ -1,0 +1,21 @@
+{
+    "database": "/var/log/logaggregate-example.db"
+    , "exporter": "example-exporter"
+    , "bind": "ip://127.0.0.1:12345"
+    , "defaults": {
+        "origin": ""
+        , "ifname": ""
+        , "src": ""
+        , "dst": ""
+        , "port": 0
+        , "action": ""
+        , "msg": ""
+    }
+    , "create": [
+        "CREATE TABLE IF NOT EXISTS agg_with_if (origin TEXT, interface TEXT, source TEXT, destination TEXT, port INT, action TEXT, count INT DEFAULT 0, PRIMARY KEY (origin, interface, source, destination, port, action));"
+    ]
+    , "insert": [
+        "INSERT OR IGNORE INTO agg_with_if (origin, interface, source, destination, port, action) SELECT :origin, :ifname, :src, :dst, :port, :action WHERE :msg = 'Address spoofing';"
+        , "UPDATE agg_with_if SET count=count+1 WHERE :msg = 'Address spoofing' AND origin=:origin AND interface = :ifname AND source=:src AND destination=:dst AND port=:port AND action=:action;"
+    ]
+}
